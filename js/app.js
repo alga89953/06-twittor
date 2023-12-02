@@ -1,4 +1,15 @@
+// // // // // // // // // // // // //
+// // //Codigo de app.js
+// //Validando si la pagina se esta desplegando desde produccion o desarrollo
+var url=window.location.href;
+var swLocation='../sw.js';
 
+if(navigator.serviceWorker){
+    if(url.includes('localhost')){
+        swLocation='/sw.js';
+    }
+    navigator.serviceWorker.register(swLocation);
+}
 // Referencias de jQuery
 
 var titulo      = $('#titulo');
@@ -123,15 +134,4 @@ postBtn.on('click', function() {
 
 });
 
-// // // // // // // // // // // // //
-// // //Codigo de app.js
-// //Validando si la pagina se esta desplegando desde produccion o desarrollo
-var url=window.location.href;
-var swLocation='/twittor/sw.js'
 
-if(navigator.serviceWorker){
-    if(url.includes('localhost')){
-        swLocation='/sw.js';
-    }
-    navigator.serviceWorker.register(swLocation);
-}

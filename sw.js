@@ -1,3 +1,4 @@
+importScripts('js/sw-utils.js');
 // // //Codigo del service worker
 const STATIC_CACHE      ='static-v1';
 const DYNAMIC_CACHE     ='dynamic-v1';
@@ -10,10 +11,11 @@ const APP_SHELL = [
     'img/favicon.ico',
     'img/avatars/spiderman.jpg',
     'img/avatars/hulk.jpg',
-    'img/avatars/iroman.jpg',
+    'img/avatars/ironman.jpg',
     'img/avatars/thor.jpg',
     'img/avatars/wolverine.jpg',
-    'js/app.js'
+    'js/app.js',
+    'js/sw-utils.js'
 ];
 
 const APP_SHELL_INMUTABLE=[
@@ -26,15 +28,14 @@ const APP_SHELL_INMUTABLE=[
 ];
 
 self.addEventListener('install',e=>{
-    const cacheStatic=caches.open(STATIC_CACHE).then(cache=>{
-        cache.addAll(APP_SHELL);
-    });
+    const cacheStatic=caches.open(STATIC_CACHE).then(cache=>
+        cache.addAll(APP_SHELL));
 
-    const cacheInmutable=caches.open(INMUTABLE_CACHE).then(cache=>{
-        cache.addAll(APP_SHELL_INMUTABLE);
-    });
+    const cacheInmutable=caches.open(INMUTABLE_CACHE).then(cache=>
+        cache.addAll(APP_SHELL_INMUTABLE));
 
-    e.waitUntil(Promise.all([cacheStatic,cacheInmutable]));
+
+e.waitUntil(Promise.all([cacheStatic,cacheInmutable]));
 });
 
 self.addEventListener('activate',e=>{
@@ -44,7 +45,10 @@ self.addEventListener('activate',e=>{
             if(key !== STATIC_CACHE && key.includes('static')){
                 return caches.delete(key);
             }
-        });
+            if (key !== DYNAMIC_CACHE && key.includes('dynamic') ) {
+                return caches.delete(key);
+        }
+    });
     });
 
     e.waitUntil(respuesta);
@@ -54,6 +58,9 @@ self.addEventListener('activate',e=>{
 // // //Configuracion de la estrategia: cache with network fallback dentro del service worker...
 self.addEventListener('fetch',e=>{
     if(!e.request.url.includes('kaspersky')){
+
+    
+    
         const respuesta=caches.match(e.request).then(res=>{
             //Si existe la respuesta entonces se devuelve
             if(res){
@@ -61,10 +68,10 @@ self.addEventListener('fetch',e=>{
             }else{
                 return fetch(e.request).then(newRes=>{
                     return actualizaCacheDinamico(DYNAMIC_CACHE,e.request,newRes);
-                });
+                })
             }
         });
 
-        e.responWith(respuesta);
+        e.respondWith(respuesta);
     }
-});
+    })
